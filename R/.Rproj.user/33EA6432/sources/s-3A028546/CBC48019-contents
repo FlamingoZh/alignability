@@ -1,0 +1,199 @@
+---
+title: "Predict AoA"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r load-libraries, message = FALSE, warning = FALSE}
+library(data.table)
+library(tidyverse)
+library(here)
+library(janitor)
+library(glue)
+library(ggthemes)
+library(lme4)
+library(broom)
+library(broom.mixed)
+library(entropy)
+theme_set(theme_few(base_size = 14))
+
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+```{r read-glasgow, eval = FALSE, include = FALSE}
+glasgow_names <- fread(here("external_data/glasgow_norms.csv"), 
+                                nrows = 2, header = FALSE) %>%
+  t() %>%
+  as_tibble(.name_repair = "unique") %>%
+  clean_names() %>%
+  mutate(x1 = if_else(x1 == "", lag(x1), x1)) %>%
+  mutate(x1 = if_else(x1 == "", lag(x1), x1)) %>%
+  mutate(name = if_else(x2 == "", x1, as.character(glue("{x1}_{x2}")))) %>%
+  pull(name)
+
+
+glasgow <- read_csv(here("external_data/glasgow_norms.csv"), 
+                    show_col_types = FALSE, skip =2 ,
+                    col_names = glasgow_names) %>%
+  clean_names() %>%
+  pivot_longer(cols = -c(words), names_to = "measure") %>%
+  separate(measure, into = c("measure", "metric"), sep = "_",
+           fill = "right") %>%
+  filter(is.na(metric) | metric == "m") %>%
+  select(-metric) %>%
+  mutate(measure = factor(measure, 
+                          labels = c("aoa", "arousal", "concreteness",
+                                     "dominance", "familiarity", "gender",
+                                     "imageability", "length", "size",
+                                     "valence"))) %>%
+  pivot_wider(names_from = "measure") %>%
+  separate(words, into = c("word", "sense"), sep = " \\(", fill = "right") %>%
+  mutate(sense = str_remove(sense, "\\)"))
+```
+
+```{r vg-items, eval = FALSE, include = FALSE}
+vg_nouns <- read_csv(here("external_data/vg_noun_category.txt"),
+                     show_col_types = FALSE, col_names = "word") %>%
+  mutate(word = str_split(word, "\\.", n = 2)) %>%
+  mutate(word = map(word, first)) %>%
+  pull(word) %>%
+  unlist()
+
+vg_verbs <- read_csv(here("external_data/vg_verb_category.txt"),
+                     show_col_types = FALSE, col_names = "word") %>%
+  mutate(word = str_split(word, "\\.", n = 2)) %>%
+  mutate(word = map(word, first)) %>%
+  pull(word) %>%
+  unlist()
+```
+
+```{r glasgow_nouns, eval = FALSE, include = FALSE}  
+glasgow_nouns <- filter(glasgow, word %in% vg_nouns)
+
+noun_clarifications <- glasgow_nouns %>%
+  filter(!is.na(sense))
+
+glasgow_verbs <- filter(glasgow, word %in% vg_verbs)
+
+verb_clarifications <- glasgow_verbs %>%
+  filter(!is.na(sense))
+```
+
+```{r load-aoas}
+noun_aoas <- read_delim(here("data/noun_aoa.txt"),
+                       col_names = c("word", "aoa")) %>%
+  mutate(category = "noun")
+
+verb_aoas <- read_delim(here("data/verb_aoa.txt"),
+                       col_names = c("word", "aoa")) %>%
+  mutate(category = "verb")
+
+all_aoas <- bind_rows(noun_aoas, verb_aoas)
+```
+
+```{r load-co-occurrs}
+co_occurrence <- fread(here("data/childes_freq_dataframe.txt"), 
+                            header = FALSE, 
+                       col.names = c("word", "surround", "freq")) %>%
+  as_tibble() %>%
+  filter(word %in% unique(pull(all_aoas, word))) 
+
+cds <- co_occurrence %>%
+  group_by(word) %>%
+  summarise(cd = n()/sum(freq))
+```
+
+```{r load-other-measures}
+freqs <- map_dfr(c("noun", "verb"),
+             ~read_csv(here(glue("data/childes_{.x}_frequencies.csv"))) %>% 
+               rename(word = gloss, frequency = count) %>%
+               mutate(category = .x))
+
+vis_variance <- map_dfr(c("noun", "verb"),
+             ~read_delim(here(glue("data/{.x}_visual_variance_least10.txt")),
+                       col_names = c("word", "vis_variance")) %>%
+               mutate(category = .x))
+
+
+lang_variance <- map_dfr(c("noun", "verb"),
+             ~read_delim(here(glue("data/{.x}_language_variance_least10.txt")),
+                       col_names = c("word", "lang_variance")) %>%
+               mutate(category = .x))
+
+
+alignments <- map_dfr(c("noun", "verb"),
+             ~read_delim(here(glue("data/{.x}_alignment_score_least10.txt")),
+                       col_names = c("word", "alignment")) %>%
+               mutate(category = .x))
+
+all_data <- all_aoas %>%
+  left_join(freqs, by = c("word", "category")) %>%
+  left_join(vis_variance, by = c("word", "category")) %>%
+  left_join(lang_variance, by = c("word", "category")) %>%
+  left_join(alignments, by = c("word", "category")) %>%
+  left_join(cds, by = "word")
+```
+
+```{r}
+ggplot(all_data, aes(x = log(frequency), y = aoa, color = category)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+ggplot(all_data, aes(x = log(cd), y = aoa, color = category)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+ggplot(all_data, aes(x = log(cd), y = log(frequency), color = category)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+ggplot(all_data, aes(x = exp(vis_variance), y = aoa, color = category)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+ggplot(all_data, aes(x = lang_variance, y = aoa, color = category)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+ggplot(all_data, aes(x = alignment, y = aoa, color = category)) + 
+  geom_point() + 
+  geom_smooth(method = "lm")
+
+```
+
+If we put everything in the model, frequency and category seem to dominate
+```{r all-predictors}
+all_predictors <- lm(aoa ~ frequency + vis_variance + lang_variance + 
+                       alignment + category,
+   data = all_data) 
+
+tidy(all_predictors) %>%
+  mutate(p.value = papaja::printp(p.value))
+```
+
+Looks like verbs have generally lower alignment than nouns, let's try taking out category
+```{r no-category}
+no_category <- lm(aoa ~ frequency + vis_variance + lang_variance + 
+                       alignment ,
+   data = all_data) 
+
+tidy(no_category) %>%
+  mutate(p.value = papaja::printp(p.value))
+```
+
+Let's try separately for different categories
+```{r within-category}
+within_category <- all_data %>%
+  group_by(category) %>%
+  nest() %>%
+  mutate(model = map(data, ~lm(aoa ~ frequency + vis_variance + lang_variance + 
+                       alignment,
+                       data = .x) %>% tidy() %>% 
+                       mutate(p.value = papaja::printp(p.value)))) %>%
+  select(-data) %>%
+  unnest(cols = c(model))
+
+within_category
+```

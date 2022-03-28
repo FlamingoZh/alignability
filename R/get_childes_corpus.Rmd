@@ -1,0 +1,32 @@
+---
+title: "get_childes_corpus"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(childesr)
+library(wordbankr)
+library(here)
+```
+
+```{r}
+utterance_data<-get_utterances(collection=c("Eng-NA","Eng-UK"), role_exclude = "Target_Child")
+```
+```{r}
+utterance_data_2<-get_utterances(language="eng", role_exclude = "Target_Child")
+```
+
+```{r}
+write.table(utterance_data_2['gloss'],row.names=FALSE,file = "../data/processed/childes_gloss.txt",quote = FALSE)
+```
+
+
+```{r}
+d_participants <- get_participants()
+```
+

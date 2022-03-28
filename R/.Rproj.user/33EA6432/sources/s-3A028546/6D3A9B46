@@ -1,0 +1,26 @@
+{
+    "id": "6D3A9B46",
+    "path": "~/Desktop/f_verb_alignment/R/get_childes_corpus.Rmd",
+    "project_path": "get_childes_corpus.Rmd",
+    "type": "r_markdown",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1648038187081.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "31,0",
+        "scrollLine": "10"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1648038236,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1648038236708,
+    "read_only": false,
+    "read_only_alternatives": []
+}

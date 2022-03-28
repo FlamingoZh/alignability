@@ -1,0 +1,107 @@
+---
+title: "Get Wordbank Data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(childesr)
+library(wordbankr)
+library(here)
+```
+
+## Read data
+
+```{r}
+vg_nouns <- read_csv(here("../data/concepts/vg_noun_concept_least20.txt"),
+                     show_col_types = FALSE,
+                     col_names = "synset") %>%
+  separate(synset, into = c("word", "n", "set"), sep = "\\.", 
+           remove = FALSE) %>%
+  select(-n)
+
+vg_verbs <- read_csv(here("../data/concepts/vg_verb_concept_least20.txt"),
+                     show_col_types = FALSE,
+                     col_names = "synset") %>%
+  separate(synset, into = c("word", "n", "set"), sep = "\\.", 
+           remove = FALSE) %>%
+  select(-n)
+```
+
+```{r read-childes noun} 
+noun_freq <- map_dfr(pull(vg_nouns, word),
+        ~get_types(collection = c("Eng-NA", "Eng-UK"), 
+                   role_exclude = "Target_Child", 
+                                  type = .x)) %>%
+  mutate(gloss = tolower(gloss)) %>%
+  group_by(gloss) %>%
+  summarise(count = sum(count))
+
+write.table(noun_freq, file = "../data/processed/childes_noun_freq.txt", sep = " ",
+            row.names = FALSE,quote = FALSE)
+```
+
+```{r read-childes verb} 
+verb_freq <- map_dfr(pull(vg_verbs, word),
+        ~get_types(collection = c("Eng-NA", "Eng-UK"), 
+                   role_exclude = "Target_Child", 
+                                  type = .x)) %>%
+  mutate(gloss = tolower(gloss)) %>%
+  group_by(gloss) %>%
+  summarise(count = sum(count))
+
+write.table(noun_freq, file = "../data/processed/childes_verb_freq.txt", sep = " ",
+            row.names = FALSE)
+```
+
+```{r}
+wordbank_nouns<-get_item_data(language = "English (American)", form = "WS") %>% filter(lexical_class=="nouns")
+wordbank_verbs<-get_item_data(language = "English (American)", form = "WS") %>% filter(lexical_class=="verbs")
+```
+
+## Intersection Word Set
+
+```{r}
+intersect_noun_list<-intersect(vg_nouns,wordbank_nouns$uni_lemma)
+intersect_noun_ids<-subset(wordbank_nouns,uni_lemma %in% intersect_noun_list)$item_id
+intersect_nouns<-get_instrument_data(language = "English (American)",
+                                   form = "WS",
+                                   items = intersect_noun_ids,
+                                   administrations = TRUE)
+intersect_nouns
+```
+
+```{r}
+intersect_verb_list<-intersect(vg_verbs,wordbank_verbs$uni_lemma)
+intersect_verb_ids<-subset(wordbank_verbs,uni_lemma %in% intersect_verb_list)$item_id
+intersect_verbs<-get_instrument_data(language = "English (American)",
+                                   form = "WS",
+                                   items = intersect_verb_ids,
+                                   administrations = TRUE)
+intersect_verbs
+```
+
+## Estimate AoA
+
+```{r}
+noun_aoa_data_drop_na<-fit_aoa(intersect_nouns) %>% drop_na(aoa)
+noun_aoa_data<- data.frame(word=subset(wordbank_nouns, num_item_id %in% noun_aoa_data_drop_na$num_item_id)$uni_lemma,aoa=noun_aoa_data_drop_na$aoa)
+noun_aoa_data
+write.csv(noun_aoa_data,"../data/wordbank_noun_aoa.csv",row.names=FALSE)
+```
+
+```{r}
+verb_aoa_data_drop_na<-fit_aoa(intersect_verbs) %>% drop_na(aoa)
+verb_aoa_data<- data.frame(word=subset(wordbank_verbs, num_item_id %in% verb_aoa_data_drop_na$num_item_id)$uni_lemma,aoa=verb_aoa_data_drop_na$aoa)
+verb_aoa_data
+write.csv(verb_aoa_data,"../data/wordbank_verb_aoa.csv",row.names=FALSE)
+```
+
+```{r}
+arrange(noun_aoa_data,aoa)
+```
+

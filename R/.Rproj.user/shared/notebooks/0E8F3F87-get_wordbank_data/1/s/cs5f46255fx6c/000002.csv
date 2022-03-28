@@ -1,0 +1,849 @@
+"0","noun_freq <- map_dfr(pull(vg_nouns, word),"
+"0","        ~get_types(collection = c(""Eng-NA"", ""Eng-UK""), "
+"0","                   role_exclude = ""Target_Child"", "
+"0","                                  type = .x)) %>%"
+"0","  mutate(gloss = tolower(gloss)) %>%"
+"0","  group_by(gloss) %>%"
+"0","  summarise(count = sum(count))"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"2","Using current database version: '2021.1'.
+"
+"2","Getting data from 1270 children in 73 corpora...
+"
+"0","write.table(noun_freq, file = ""../data/processed/childes_noun_freq.txt"", sep = "" "","
+"0","            row.names = FALSE)"
