@@ -5,4 +5,5 @@ data/pretrained_models
 **/__pycache__
 **/.RData
 **/.Rhistory
+**/.Rproj.user
 *.ipynb_checkpoints
