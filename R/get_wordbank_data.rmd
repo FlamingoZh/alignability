@@ -42,7 +42,7 @@ noun_freq <- map_dfr(pull(vg_nouns, word),
   summarise(count = sum(count))
 
 write.table(noun_freq, file = "../data/processed/childes_noun_freq.txt", sep = " ",
-            row.names = FALSE,quote = FALSE)
+            row.names = FALSE, quote = FALSE)
 ```
 
 ```{r read-childes verb} 
@@ -54,8 +54,8 @@ verb_freq <- map_dfr(pull(vg_verbs, word),
   group_by(gloss) %>%
   summarise(count = sum(count))
 
-write.table(noun_freq, file = "../data/processed/childes_verb_freq.txt", sep = " ",
-            row.names = FALSE)
+write.table(verb_freq, file = "../data/processed/childes_verb_freq.txt", sep = " ",
+            row.names = FALSE, quote = FALSE)
 ```
 
 ```{r}
@@ -66,7 +66,7 @@ wordbank_verbs<-get_item_data(language = "English (American)", form = "WS") %>% 
 ## Intersection Word Set
 
 ```{r}
-intersect_noun_list<-intersect(vg_nouns,wordbank_nouns$uni_lemma)
+intersect_noun_list<-intersect(vg_nouns$word,wordbank_nouns$uni_lemma)
 intersect_noun_ids<-subset(wordbank_nouns,uni_lemma %in% intersect_noun_list)$item_id
 intersect_nouns<-get_instrument_data(language = "English (American)",
                                    form = "WS",
@@ -76,7 +76,7 @@ intersect_nouns
 ```
 
 ```{r}
-intersect_verb_list<-intersect(vg_verbs,wordbank_verbs$uni_lemma)
+intersect_verb_list<-intersect(vg_verbs$word,wordbank_verbs$uni_lemma)
 intersect_verb_ids<-subset(wordbank_verbs,uni_lemma %in% intersect_verb_list)$item_id
 intersect_verbs<-get_instrument_data(language = "English (American)",
                                    form = "WS",
@@ -91,7 +91,8 @@ intersect_verbs
 noun_aoa_data_drop_na<-fit_aoa(intersect_nouns) %>% drop_na(aoa)
 noun_aoa_data<- data.frame(word=subset(wordbank_nouns, num_item_id %in% noun_aoa_data_drop_na$num_item_id)$uni_lemma,aoa=noun_aoa_data_drop_na$aoa)
 noun_aoa_data
-write.csv(noun_aoa_data,"../data/wordbank_noun_aoa.csv",row.names=FALSE)
+write.table(noun_aoa_data, file = "../data/processed/wordbank_noun_aoa.txt", sep = " ",
+            row.names = FALSE, quote = FALSE)
 ```
 
 ```{r}
