@@ -1,5 +1,6 @@
 pretrained_models/
 preprocessing/OIDv4_ToolKit
+data/dumped_embeddings
 
 .idea/
 .DS_Store
