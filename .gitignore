@@ -8,3 +8,4 @@ data/pretrained_models
 **/.Rhistory
 **/.Rproj.user
 *.ipynb_checkpoints
+.Rproj.user
