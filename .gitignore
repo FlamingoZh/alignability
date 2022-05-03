@@ -1,4 +1,5 @@
 data/pretrained_models
+preprocessing/OIDv4_ToolKit
 
 .idea/
 .DS_Store

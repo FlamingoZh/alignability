@@ -72,7 +72,7 @@ intersect_nouns<-get_instrument_data(language = "English (American)",
                                    form = "WS",
                                    items = intersect_noun_ids,
                                    administrations = TRUE)
-intersect_nouns
+# intersect_nouns
 ```
 
 ```{r}
@@ -82,7 +82,7 @@ intersect_verbs<-get_instrument_data(language = "English (American)",
                                    form = "WS",
                                    items = intersect_verb_ids,
                                    administrations = TRUE)
-intersect_verbs
+# intersect_verbs
 ```
 
 ## Estimate AoA
@@ -90,16 +90,17 @@ intersect_verbs
 ```{r}
 noun_aoa_data_drop_na<-fit_aoa(intersect_nouns) %>% drop_na(aoa)
 noun_aoa_data<- data.frame(word=subset(wordbank_nouns, num_item_id %in% noun_aoa_data_drop_na$num_item_id)$uni_lemma,aoa=noun_aoa_data_drop_na$aoa)
-noun_aoa_data
-write.table(noun_aoa_data, file = "../data/processed/wordbank_noun_aoa.txt", sep = " ",
+# noun_aoa_data
+write.table(arrange(noun_aoa_data,aoa), file = "../data/processed/wordbank_noun_aoa.txt", sep = " ",
             row.names = FALSE, quote = FALSE)
 ```
 
 ```{r}
 verb_aoa_data_drop_na<-fit_aoa(intersect_verbs) %>% drop_na(aoa)
 verb_aoa_data<- data.frame(word=subset(wordbank_verbs, num_item_id %in% verb_aoa_data_drop_na$num_item_id)$uni_lemma,aoa=verb_aoa_data_drop_na$aoa)
-verb_aoa_data
-write.csv(verb_aoa_data,"../data/wordbank_verb_aoa.csv",row.names=FALSE)
+# verb_aoa_data
+write.table(arrange(verb_aoa_data,aoa), file = "../data/processed/wordbank_verb_aoa.txt", sep = " ",
+            row.names = FALSE, quote = FALSE)
 ```
 
 ```{r}

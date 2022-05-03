@@ -9,6 +9,56 @@ from scipy.stats import spearmanr
 def test():
 	print("hello wolrd")
 
+def dump_dict_data(dic,file_name):
+	with open(file_name,"w") as f:
+		for word in dic:
+			f.write(word+" "+str(dic[word])+"\n")
+
+def load_data_to_dict(file_name,concepts=None,header=False):
+	dic=dict()
+	with open(file_name,"r") as f:
+		if header:
+			next(f)
+		if concepts:
+			for row in f:
+				temp=row.replace("\n","").replace('\r',"").split(" ")
+				if temp[0] in concepts:
+					dic[temp[0]]=float(temp[1])
+		else:
+			for row in f:
+				temp=row.replace("\n","").replace('\r',"").split(" ")
+				dic[temp[0]]=float(temp[1])			
+	return dic
+
+def get_variance(struct):
+	words=struct["words"]
+	visual_variance=dict()
+	language_variance=dict()
+	for word in words:
+		visual_embeddings=struct["embeds"][word]["visual"]
+		visual_variance[word]=np.mean(np.linalg.norm(visual_embeddings-np.mean(visual_embeddings,axis=0),axis=1))
+		language_embeddings=struct["embeds"][word]["language"]
+		language_variance[word]=np.mean(np.linalg.norm(language_embeddings-np.mean(language_embeddings,axis=0),axis=1))
+	return visual_variance,language_variance
+
+def get_distinctness_from_nearest_5(struct):
+	words=struct["words"]
+	visual_centers=dict()
+	language_centers=dict()
+	for word in words:
+		visual_embeddings=np.array(struct["embeds"][word]["visual"])
+		visual_centers[word]=np.mean(visual_embeddings,axis=0)
+		language_embeddings=np.array(struct["embeds"][word]["language"])
+		language_centers[word]=np.mean(language_embeddings,axis=0)
+	visual_distinctness=dict()
+	language_distinctness=dict()
+	for word in words:
+		visual_distances=[np.linalg.norm(visual_centers[word]-visual_centers[temp]) for temp in words]
+		visual_distinctness[word]=np.sum(sorted(visual_distances)[:6])/5
+		language_distances=[np.linalg.norm(language_centers[word]-language_centers[temp]) for temp in words]
+		language_distinctness[word]=np.sum(sorted(language_distances)[:6])/5
+	return visual_distinctness,language_distinctness
+
 # aggregate visual embeddings
 def aggregate_embeddings_visual(input_struct,n_sample_per_category):
 	words=input_struct['words']
@@ -69,76 +119,6 @@ def get_aggregated_embeddings_2D(data, n_sample_per_visual, n_sample_per_languag
 	z_0 = np.stack([embeds['visual'] for embeds in aggregated_data['embeds'].values()])
 	z_1 = np.stack([embeds['language'] for embeds in aggregated_data['embeds'].values()])
 	return z_0, z_1
-
-def replace_language_embeddings(struct_name,language_dict_name):
-	struct=pickle.load(open(struct_name,'rb'))
-	dictionary=pickle.load(open(language_dict_name,'rb'))
-	dict_keys=list(dictionary.keys())
-	concepts=struct['words']
-
-	embed_dict = dict()
-	for concept in concepts:
-		if concept in dict_keys:
-			embed_dict[concept]=dict(
-				visual=struct['embeds'][concept]['visual'],
-				language=[dictionary[concept]])
-		else:
-			embed_dict[concept] = dict(
-				visual=struct['embeds'][concept]['visual'],
-				language=[random.choice(list(dictionary.values()))])
-	new_struct=dict(
-		embeds=embed_dict,
-		words=concepts
-	)
-	return new_struct
-
-# def dimention_reduction_TSNE(vectors,perplexity=30):
-#     from sklearn.manifold import TSNE
-#     tsne = TSNE(n_components=2, random_state=0,perplexity=perplexity)
-#     Y = tsne.fit_transform(vectors)
-#     return Y
-
-# generate n distinct colors
-def gen_distinct_colors(num_colors):
-	import colorsys
-	colors=[]
-	for i in np.arange(0., 360., 360. / num_colors):
-		hue = i/360.
-		lightness = (50 + np.random.rand() * 10)/100.
-		saturation = (90 + np.random.rand() * 10)/100.
-		colors.append(colorsys.hls_to_rgb(hue, lightness, saturation))
-	return np.array(colors)
-
-def search_index(word_list,word_order):
-	index_list=list()
-	for item in word_list:
-		index_list.append(word_order.index(item))
-	return index_list
-
-def load_pretrained_Glove(filename='../data/pretrained_models/glove.840B.300d.txt',dumpname='../data/pretrained_models/glove_dict_840B.pkl'):
-	if not pathlib.Path(dumpname).is_file():
-		embeddings_dict = {}
-		if not pathlib.Path(filename).is_file():
-			print("Error in loading pretrained Glove, cannot find", filename, 'or', dumpname)
-			sys.exit(1)
-		with open(filename, 'r', encoding="utf-8") as f:
-			ii=0
-			for line in f:
-				ii+=1
-				values = line.split()
-				#print(values)
-				word = values[0]
-				try:
-					vector = np.asarray(values[1:], "float32")
-					embeddings_dict[word] = vector
-				except:
-					print(values[0:5],ii)
-		pickle.dump(embeddings_dict, open(dumpname, 'wb'))
-	else:
-		embeddings_dict=pickle.load(open(dumpname,'rb'))
-
-	return embeddings_dict
-
 
 def call_fintuned_BERT_sentence(concepts,packed_samples,finetune_path,pos,cuda=False):
 	print("Forward Propagation in BERT.")
@@ -253,9 +233,10 @@ def call_pretrained_BERT(concepts,packed_samples,cuda=False,mask=False):
 
 	for concept, samples_of_the_concept in zip(concepts,packed_samples):
 		i_concept+=1
-		print("Computing word embedding of", concept, '('+str(i_concept)+'/'+str(len(concepts))+')'+"...")
+		sampled_contexts, corresponding_words = samples_of_the_concept
+		print("Computing word embedding of", concept, corresponding_words[0], '('+str(i_concept)+'/'+str(len(concepts))+')'+"...")
 		word_embedding_list=list()
-		sampled_contexts,corresponding_words=samples_of_the_concept
+
 		for text, target_word in zip(sampled_contexts,corresponding_words):
 			marked_text = "[CLS] " + text + " [SEP]"
 			if mask:
@@ -284,7 +265,8 @@ def call_pretrained_BERT(concepts,packed_samples,cuda=False,mask=False):
 			# take the summation of the outputs of the last four layers as the contextualized embedding
 			token_vecs_sum = []
 			for token in token_embeddings:
-				sum_vec = torch.sum(token[-4:], dim=0)
+				sum_vec = token[-1:]
+				#sum_vec = torch.sum(token[-4:], dim=0)
 				if cuda:
 					sum_vec=sum_vec.data.cpu().numpy()
 				else:
@@ -304,13 +286,13 @@ def call_pretrained_BERT(concepts,packed_samples,cuda=False,mask=False):
 
 	return language_embeddings_dict
 
-def sample_sentence_from_corpus(concepts,n_sample,pos=None,corpus_name='wiki_en',window_size=51):
+def sample_sentence_from_corpus(concepts,n_sample,pos=None,corpus_name='wiki_en',window_size=5):
 	# import linecache
 	# please modify the below path to your corpus
 	if corpus_name=="wiki_en":
-		path_to_corpus='/home/yuchenz2/word_embedding_training/corpora/wiki_en.txt'
+		path_to_corpus='/user_data/yuchenz2/word_embedding_training/corpora/wiki_en.txt'
 	elif corpus_name=="wiki_en_subset":
-		path_to_corpus='/home/yuchenz2/word_embedding_training/corpora/wiki_en_1000.txt'
+		path_to_corpus='/user_data/yuchenz2/word_embedding_training/corpora/wiki_en_1000.txt'
 	else:
 		print("Error, unrecognized corpus name.")
 		sys.exit(1)
@@ -367,8 +349,82 @@ def sample_sentence_from_corpus(concepts,n_sample,pos=None,corpus_name='wiki_en'
 			packed_samples.append((sampled_contexts,corresponding_words))
 		else:
 			print("Warning, didn't find enough samples for target word", target_word, ", only find ", str(i_sample), " samples.")
+			packed_samples.append((sampled_contexts, corresponding_words))
 	print("Sampling Completed.")
 	return packed_samples
+
+
+
+#######################
+
+def replace_language_embeddings(struct_name,language_dict_name):
+	struct=pickle.load(open(struct_name,'rb'))
+	dictionary=pickle.load(open(language_dict_name,'rb'))
+	dict_keys=list(dictionary.keys())
+	concepts=struct['words']
+
+	embed_dict = dict()
+	for concept in concepts:
+		if concept in dict_keys:
+			embed_dict[concept]=dict(
+				visual=struct['embeds'][concept]['visual'],
+				language=[dictionary[concept]])
+		else:
+			embed_dict[concept] = dict(
+				visual=struct['embeds'][concept]['visual'],
+				language=[random.choice(list(dictionary.values()))])
+	new_struct=dict(
+		embeds=embed_dict,
+		words=concepts
+	)
+	return new_struct
+
+def dimention_reduction_TSNE(vectors,perplexity=30):
+	from sklearn.manifold import TSNE
+	tsne = TSNE(n_components=2, random_state=0,perplexity=perplexity)
+	Y = tsne.fit_transform(vectors)
+	return Y
+
+# generate n distinct colors
+def gen_distinct_colors(num_colors):
+	import colorsys
+	colors=[]
+	for i in np.arange(0., 360., 360. / num_colors):
+		hue = i/360.
+		lightness = (50 + np.random.rand() * 10)/100.
+		saturation = (90 + np.random.rand() * 10)/100.
+		colors.append(colorsys.hls_to_rgb(hue, lightness, saturation))
+	return np.array(colors)
+
+def search_index(word_list,word_order):
+	index_list=list()
+	for item in word_list:
+		index_list.append(word_order.index(item))
+	return index_list
+
+def load_pretrained_Glove(filename='../pretrained_models/glove.840B.300d.txt',dumpname='../pretrained_models/glove_dict_840B.pkl'):
+	if not pathlib.Path(dumpname).is_file():
+		embeddings_dict = {}
+		if not pathlib.Path(filename).is_file():
+			print("Error in loading pretrained Glove, cannot find", filename, 'or', dumpname)
+			sys.exit(1)
+		with open(filename, 'r', encoding="utf-8") as f:
+			ii=0
+			for line in f:
+				ii+=1
+				values = line.split()
+				#print(values)
+				word = values[0]
+				try:
+					vector = np.asarray(values[1:], "float32")
+					embeddings_dict[word] = vector
+				except:
+					print(values[0:5],ii)
+		pickle.dump(embeddings_dict, open(dumpname, 'wb'))
+	else:
+		embeddings_dict=pickle.load(open(dumpname,'rb'))
+
+	return embeddings_dict
 
 def linear_interpolation(y, factor=10):
 	"""Interpolate additional points for piece-wise linear function."""

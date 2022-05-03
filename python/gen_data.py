@@ -9,10 +9,16 @@ import pprint
 from utils.data_generation_library import lemmatize
 
 # from utils.data_generation_library import vrd_noun_encoder, vrd_verb_encoder
-# from utils.data_generation_library import glove_pretrained_encoder
-# from utils.data_generation_library import openimage_encoder
+
+from utils.data_generation_library import imagenet_encoder
+from utils.data_generation_library import glove_pretrained_encoder_imagenet, bert_pretrained_encoder_imagenet
+
+from utils.data_generation_library import openimage_encoder
+from utils.data_generation_library import glove_pretrained_encoder_openimage
+
 from utils.data_generation_library import vg_noun_encoder, vg_verb_encoder
 from utils.data_generation_library import glove_pretrained_encoder_vg, bert_pretrained_encoder_vg, bert_pretrained_encoder_vg_mask
+
 from utils.data_generation_library import mit_resnet3d50_encoder, mit_swav_encoder
 from utils.data_generation_library import glove_pretrained_encoder_mit, bert_pretrained_encoder_mit
 
@@ -26,7 +32,24 @@ def load_concept(concept_file):
 
 def get_encoders(dataset,l_encoder,v_encoder):
 	# choose visual encoder and language encoder according to the setting
-	if "vg_noun" in dataset:
+	if "imagenet" in dataset:
+		if l_encoder=="glove" and v_encoder=="swav":
+			visual_encoder = imagenet_encoder
+			language_encoder = glove_pretrained_encoder_imagenet
+		elif l_encoder=="bert" and v_encoder=="swav":
+			visual_encoder = imagenet_encoder
+			language_encoder = bert_pretrained_encoder_imagenet
+		else:
+			print('Error, cannot find corresponding encoder(s).')
+			sys.exit(1)
+	elif "openimage" in dataset:
+		if l_encoder=="glove" and v_encoder=="swav":
+			visual_encoder = openimage_encoder
+			language_encoder = glove_pretrained_encoder_openimage
+		else:
+			print('Error, cannot find corresponding encoder(s).')
+			sys.exit(1)
+	elif "vg_noun" in dataset:
 		if l_encoder == "glove" and v_encoder == "swav":
 			visual_encoder = vg_noun_encoder
 			language_encoder = glove_pretrained_encoder_vg
@@ -63,7 +86,7 @@ def get_encoders(dataset,l_encoder,v_encoder):
 
 def generate_embeddings(dataset,l_encoder,v_encoder,concept_file,n_sample,embeds_path=None,load_l=False,load_v=False,dump=True,cuda=False):
 
-	name = "_".join([concept_file.split(".")[0], v_encoder, l_encoder, str(n_sample)])
+	name = "_".join([dataset, v_encoder, l_encoder, str(n_sample)])
 
 	# load concepts
 	concepts=load_concept(concept_file)
@@ -92,16 +115,17 @@ def generate_embeddings(dataset,l_encoder,v_encoder,concept_file,n_sample,embeds
 		print("---Start sampling language embeddings---")
 		language_embeddings=language_encoder(concepts,n_sample,cuda)
 
-	embed_dict=dict()
-
+	if 'openimage' in dataset:
+		# lowercase the first letter in each concept word
+		concepts = [concept.lower() for concept in concepts]
 	if 'vg' in dataset:
 		# drop wordnet annotation suffixes in concepts
 		concepts=[concept.split(".")[0] for concept in concepts]
-
 	if 'mit' in dataset:
 		# transform concepts from present participle to simple present
 		concepts=list(lemmatize(concepts).keys())
 
+	embed_dict = dict()
 	for concept in concepts:
 		embed_dict[concept]=dict(visual=visual_embeddings[concept],language=language_embeddings[concept])
 
