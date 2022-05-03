@@ -86,11 +86,12 @@ d_folds
 
 ```{r rec}
 d_rec <-
-  recipe(aoa ~ frequency + vis_variance + lang_variance, 
+  recipe(aoa ~ ., 
          data = d_train) %>%
   step_log(aoa, frequency) %>%
-  step_sqrt(lang_variance)
-  #update_role(word, new_role = "id")
+  step_sqrt(lang_variance) %>%
+  step_dummy(category) %>%
+  update_role(word, new_role = "id")
  
 d_prep <- prep(d_rec)
 bake(d_prep, new_data = NULL)
@@ -158,4 +159,15 @@ d_shap <-
   )
 
 shap.plot.summary(d_shap)
+```
+
+```{r}
+d_shap %>%
+  as_tibble() %>%
+  mutate(value = abs(value)) %>%
+  group_by(variable) %>%
+  tidyboot_mean(value) %>%
+  ungroup() %>%
+  ggplot(aes(x = variable, y = empirical_stat)) + 
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper))
 ```
