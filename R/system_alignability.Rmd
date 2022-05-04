@@ -1,0 +1,176 @@
+---
+title: "System-level alignment"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+  
+```{r load-libraries, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(here)
+library(glue)
+library(ggthemes)
+
+theme_set(theme_few(base_size = 14))
+
+knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE)
+```
+
+```{r load-aoa-data}
+read_adult_file <- function(type, word_type) {
+  read_delim(here(glue("data/{type}_{word_type}_aoa.txt")),
+                        col_names = c("word", "aoa")) %>%
+    mutate(word_type = word_type,
+           type = type)
+}
+
+read_wordbank_file <- function(word_type) {
+  read_csv(here(glue("data/wordbank_{word_type}_aoa.csv"))) %>%
+    mutate(word_type = word_type,
+           type = "wordbank")
+}
+
+glasgow_aoas <- map_dfr(c("noun", "verb"), ~read_adult_file("glasgow", .x))
+kuperman_aoas <- map_dfr(c("noun", "verb"), ~read_adult_file("kuperman", .x))
+wordbank_aoas <- map_dfr(c("noun", "verb"), read_wordbank_file)
+
+all_aoas <- bind_rows(glasgow_aoas, wordbank_aoas, kuperman_aoas) %>%
+  pivot_wider(names_from = "type", values_from = "aoa")
+
+predict_wordbank <- lm(wordbank ~ kuperman, data = all_aoas)
+
+predicted_aoas <- all_aoas %>%
+  mutate(predicted = predict(predict_wordbank, 
+                            newdata = select(all_aoas, kuperman)),
+         estimated_aoa = if_else(!is.na(wordbank), wordbank, predicted)) %>%
+  arrange(estimated_aoa)
+
+```
+
+
+```{r load-data, message = FALSE, warning = FALSE}
+read_vg_words <- function(word_type) {
+  read_lines(here(glue("data/vg_{word_type}_category_least10.txt"))) %>%
+    enframe(name = NULL, value = "word") %>%
+    mutate(word = sub("\\..*", "", word)) %>%
+    pull(word)
+}
+
+nouns <- read_vg_words("noun")
+verbs <-read_vg_words("verb")
+
+
+read_similarity <- function(type, word_type) {
+  if(word_type == "noun")
+    names <- nouns
+  else
+    names <- verbs
+  
+  read_delim(here(glue("data/{type}_sim_{word_type}.txt")), 
+             col_names = names) %>% 
+    select(-X310) %>%
+    mutate(word2 = names) %>%
+    pivot_longer(cols = -word2, names_to = "word1", values_to = "sim") %>%
+    filter(word1 != word2) %>%
+    mutate(word_type = word_type, type = type)
+}
+
+similarities <- expand_grid(type = c("visual", "language"), 
+                       word_type = c("noun", "verb")) %>%
+  mutate(num = 1:n()) %>%
+  group_by(num) %>%
+  nest() %>%
+  mutate(similarity = map(data, ~read_similarity(.x$type, .x$word_type))) %>%
+  ungroup() %>%
+  select(-data, -num) %>%
+  unnest(cols = c(similarity)) %>%
+  pivot_wider(names_from = "type", values_from = "sim")
+
+estimated_words <- similarities %>%
+  distinct(word1, word_type)
+
+estimated_aoas <- predicted_aoas %>%
+  inner_join(estimated_words, by = c("word" = "word1", "word_type"))
+```
+
+
+```{r compute-alignment}
+compute_alignment <- function(num, pos, empirical = TRUE) {
+  aoa_data <- estimated_aoas %>%
+    filter(word_type == pos)
+  
+  joint_data <- filter(similarities, word_type == pos)
+  
+  if(empirical) {
+    words <- aoa_data %>%
+      slice(1:num) %>%
+      pull(word)
+  }
+  else {
+    words <- aoa_data %>%
+    sample_n(num) %>%
+    pull(word)
+  }
+  
+  joint_data %>%
+    filter(word1 %in% words, word2 %in% words) %>%
+    summarise(cor = cor(visual, language, method = "spearman")) 
+}
+```
+
+```{r null-alignment}
+null_alignment <- function(num, pos, replicates = 20) {
+  
+  rep_tibble <- replicate(replicates, 
+                          compute_alignment(num, pos, empirical = FALSE),
+                          simplify = FALSE) %>%
+    bind_rows(.id = "replicate") %>%
+    summarise(ci_upper = quantile(cor, .975),
+              ci_lower = quantile(cor, .025),
+              cor = mean(cor))
+}
+```
+
+```{r simulate-alignment noun}
+STEP_SIZE <- 50
+MAX <- 300
+
+
+empirical_noun_aligns <- map(seq(STEP_SIZE, MAX, STEP_SIZE), compute_alignment, "noun") %>%
+  bind_rows(.id = "subset") %>%
+  mutate(word_type = "noun")
+
+empirical_verb_aligns <- map(seq(STEP_SIZE, MAX, STEP_SIZE), compute_alignment, "verb") %>%
+  bind_rows(.id = "subset") %>%
+  mutate(word_type = "verb")
+  
+empirical_aligns <- bind_rows(empirical_noun_aligns, empirical_verb_aligns) %>%
+  mutate(subset = STEP_SIZE * as.numeric(subset)) %>%
+  mutate(type = "empirical")
+
+null_noun_aligns <- map(seq(STEP_SIZE, MAX, STEP_SIZE), null_alignment, "noun") %>%
+  bind_rows(.id = "subset") %>%
+  mutate(word_type = "noun")
+
+null_verb_aligns <- map(seq(STEP_SIZE, MAX, STEP_SIZE), null_alignment, "verb") %>%
+  bind_rows(.id = "subset") %>%
+  mutate(word_type = "verb")
+  
+null_aligns <- bind_rows(null_noun_aligns, null_verb_aligns) %>%
+  mutate(subset = STEP_SIZE * as.numeric(subset)) %>%
+  mutate(type = "null")
+```
+
+```{r plot-sims}
+ggplot(null_aligns, aes(x = subset, y = cor), color = type) +
+  facet_wrap(~ word_type, ncol = 1) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), color = "red") +
+  geom_point(data = empirical_aligns, color = "blue") +
+  theme_few()
+```
+
+```{r plot-sims verb}
+ggplot(null_verb_aligns, aes(x = subset, y = cor), color = type) +
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper), color = "red") +
+  geom_point(data = empirical_verb_aligns, color = "blue")
+```
