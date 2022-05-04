@@ -16,13 +16,14 @@ library(vip)
 library(ggthemes)
 library(finetune)
 library(SHAPforxgboost)
+library(tidyboot)
 
 theme_set(theme_few(base_size = 14))
 
 knitr::opts_chunk$set(cache = TRUE, warning = FALSE, message = FALSE)
 ```
 
-```{r load-aoas}
+```{r load-aoas-and-freqs}
 noun_aoas <- read_delim(here("../data/processed/aoa/kuperman_noun_aoa.txt"),
                        col_names = c("word", "aoa"),
                        show_col_types = FALSE) %>%
@@ -34,44 +35,80 @@ verb_aoas <- read_delim(here("../data/processed/aoa/kuperman_verb_aoa.txt"),
   mutate(category = "verb")
 
 all_aoas <- bind_rows(noun_aoas, verb_aoas)
-```
 
-
-```{r load-other-measures}
 freqs <- map_dfr(c("noun", "verb"),
              ~read_delim(here(glue("../data/processed/childes_{.x}_freq.txt")),
                          show_col_types = FALSE) %>%
                rename(word = gloss, frequency = count) %>%
                mutate(category = .x))
 
-vis_variance <- map_dfr(c("noun", "verb"),
-             ~read_delim(
-               here(glue("../data/processed/variance/v_variance_{.x}_concept_least20_swav_bert_20.txt")),
-                       col_names = c("word", "vis_variance"),
-               show_col_types = FALSE) %>%
-               mutate(category = .x))
+```
 
+```{r load-unimodal}
+read_unimodal_file <- function(category, measure, mode) {
+  read_delim(here(glue("../data/processed/{measure}/{mode}_{measure}_{category}_concept_least20_swav_bert_20.txt")),
+             col_names = c("word", "value"),
+             show_col_types = FALSE)
+}
 
-lang_variance <- map_dfr(c("noun", "verb"),
-             ~read_delim(
-               here(glue("../data/processed/variance/l_variance_{.x}_concept_least20_swav_bert_20.txt")),
-                       col_names = c("word", "lang_variance"),
-               show_col_types = FALSE) %>%
-               mutate(category = .x))
+unimodal_data <- expand_grid(category = c("noun", "verb"),
+            measure = c("variance", "distinctness"),
+            mode = c("l", "v")) %>%
+  unite(type, category, measure, mode, remove = FALSE) %>%
+  group_by(type) %>%
+  nest() %>%
+  mutate(data = map(data, ~read_unimodal_file(.$category, .$measure, .$mode))) %>%
+  unnest(cols = c(data)) %>%
+  separate(type, into = c("category", "measure", "mode")) %>%
+  unite(measure, mode, measure)
 
-#
-# alignments <- map_dfr(c("noun", "verb"),
-#              ~read_delim(here(glue("data/{.x}_alignment_score_least10.txt")),
-#                        col_names = c("word", "alignment")) %>%
-#                mutate(category = .x))
+words <- unimodal_data %>%
+  filter(measure == "l_variance") %>%
+  select(category, word)
+```
 
-all_data <- all_aoas %>%
+```{r load-similarities}
+read_multimodal_file <- function(in_category, mode) {
+  col_names <- words %>%
+    filter(category == in_category) %>% 
+    pull(word)
+  
+  sim_mat <- fread(here(glue("../data/processed/similarity_matrix/{mode}_sim_mat_{in_category}_ll_swav_bert_20.txt")), header = FALSE, col.names = col_names) %>%
+    mutate(word1 = col_names) %>%
+    as_tibble() %>%
+    pivot_longer(cols = -word1, names_to = "word2", values_to = "sim") %>%
+    filter(word1 != word2)
+}
+
+similarities <- expand_grid(category = c("noun", "verb"),
+            mode = c("l", "v")) %>%
+  unite(type, category, mode, remove = FALSE) %>%
+  group_by(type) %>%
+  nest() %>%
+  mutate(data = map(data, ~read_multimodal_file(.$category, .$mode))) %>%
+  unnest(cols = c(data)) %>%
+  separate(type, into = c("category", "mode"))
+```
+
+```{r make_model_data}
+aoa_and_freqs <- all_aoas %>%
   left_join(freqs, by = c("word", "category")) %>%
-  left_join(vis_variance, by = c("word", "category")) %>%
-  left_join(lang_variance, by = c("word", "category")) %>%
   na.omit()
-#  left_join(alignments, by = c("word", "category")) %>%
- # left_join(cds, by = "word")
+
+unimodal_measures <- aoa_and_freqs %>%
+  left_join(unimodal_data, by = c("category", "word")) %>%
+  pivot_wider(names_from = "measure", values_from = "value")
+
+alignments <- aoa_and_freqs %>%
+  left_join(similarities, by = c("category", "word" = "word1")) %>%
+  inner_join(select(aoa_and_freqs, "word", "category"), 
+             by = c("category", "word2" = "word")) %>%
+  pivot_wider(names_from = "mode", values_from = "sim") %>%
+  group_by(word, category, aoa, frequency) %>%
+  summarise(alignment = cor(l, v, method = "spearman"))
+
+all_data <- left_join(unimodal_measures, alignments,
+                      by = c("word", "category", "aoa", "frequency"))
 ```
 
 ```{r splits}
@@ -88,8 +125,8 @@ d_folds
 d_rec <-
   recipe(aoa ~ .,
          data = d_train) %>%
-  step_log(aoa, frequency) %>%
-  step_sqrt(lang_variance) %>%
+  step_log(aoa, frequency, l_distinctness, v_distinctness) %>%
+  step_sqrt(l_variance, v_variance) %>%
   step_dummy(category) %>%
   update_role(word, new_role = "id")
 
@@ -156,7 +193,13 @@ d_shap <-
       new_data = NULL,
       composition = "matrix"
     )
-  )
+  ) %>%
+  as_tibble()
+
+
+d_shap %>%
+  group_by(variable) %>%
+  summarise(cor = cor(value, rfvalue))
 
 shap.plot.summary(d_shap)
 ```
@@ -169,5 +212,26 @@ d_shap %>%
   tidyboot_mean(value) %>%
   ungroup() %>%
   ggplot(aes(x = variable, y = empirical_stat)) +
-  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper))
+  geom_pointrange(aes(ymin = ci_lower, ymax = ci_upper)) +
+  coord_flip()
+```
+
+```{r}
+shap.plot.dependence(d_shap, x = "frequency", color_feature = "category_verb")
+shap.plot.dependence(d_shap, x = "l_variance", color_feature = "category_verb")
+shap.plot.dependence(d_shap, x = "alignment", color_feature = "category_verb")
+
+shap_int <- shap.prep.interaction(
+  xgb_model = extract_fit_engine(xgb_fit),
+    X_train = bake(d_prep,
+      has_role("predictor"),
+      new_data = NULL,
+      composition = "matrix"
+    ))
+
+shap.plot.dependence(data_long = d_shap,
+                           data_int = shap_int,
+                           x= "frequency",
+                           y = "category_verb", 
+                           color_feature = "category_verb")
 ```
