@@ -1,6 +1,5 @@
 pretrained_models/
 preprocessing/OIDv4_ToolKit
-data/dumped_embeddings
 
 .idea/
 .DS_Store
@@ -10,4 +9,3 @@ data/dumped_embeddings
 **/.Rhistory
 **/.Rproj.user
 *.ipynb_checkpoints
-.Rproj.user
