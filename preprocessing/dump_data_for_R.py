@@ -45,6 +45,30 @@ def dump_sim_matrix(struct,visual_sim_filename,language_sim_filename):
 				f.write(str(round(cell,4))+" ")
 			f.write("\n")
 
+def dump_sim_matrix_noun_and_verb(struct1,visual_sim_filename1,language_sim_filename1,
+	struct2,visual_sim_filename2,language_sim_filename2):
+	words=struct["words"]
+	visual_embeddings_list=list()
+	langauge_embeddings_list=list()
+	for word in words:
+		visual_embeddings_list.append(struct["embeds"][word]["visual"])
+		langauge_embeddings_list.append(struct["embeds"][word]["language"])
+	z_0=np.array(visual_embeddings_list)
+	z_1=np.array(langauge_embeddings_list)
+	sim_z_0=cosine_similarity(z_0)
+	print(sim_z_0.shape)
+	sim_z_1=cosine_similarity(z_1)
+	with open(visual_sim_filename,"w") as f:
+		for line in sim_z_0:
+			for cell in line:
+				f.write(str(round(cell,4))+" ")
+			f.write("\n")
+	with open(language_sim_filename,"w") as f:
+		for line in sim_z_1:
+			for cell in line:
+				f.write(str(round(cell,4))+" ")
+			f.write("\n")
+
 vg_noun_data=pickle.load(open("../data/dumped_embeddings/vg_noun_ll_swav_bert_20.pkl","rb"))
 vg_verb_data=pickle.load(open("../data/dumped_embeddings/vg_verb_ll_swav_bert_20.pkl","rb"))
 

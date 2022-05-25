@@ -27,9 +27,9 @@ hostname
 echo "job starting"
 conda activate alignment
 
-python ../python/aggregate_exemplars_2D.py vg_verb_bert "../data/dumped_embeddings/vg_verb_concept_least20_swav_bert_20.pkl" visual_language \
-  --n_l_exemplar_max 20 \
-  --n_v_exemplar_max 20 \
-  --n_sample 1
+python ../python/aggregate_exemplars_2D.py vg_verb_bert "../data/dumped_embeddings_replication/vg_verb_least20_ll_swav_bert_20.pkl" visual_language \
+  --n_l_exemplar_max 10 \
+  --n_v_exemplar_max 10 \
+  --n_sample 20
 
 echo "job finished!"

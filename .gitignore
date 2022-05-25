@@ -10,3 +10,8 @@ preprocessing/OIDv4_ToolKit
 **/.Rproj.user
 *.ipynb_checkpoints
 .Rproj.user
+
+**/predict_aoa_updated_files
+**/predict_aoa_updated_cache
+
+**.html

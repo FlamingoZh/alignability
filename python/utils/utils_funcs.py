@@ -41,6 +41,24 @@ def get_variance(struct):
 		language_variance[word]=np.mean(np.linalg.norm(language_embeddings-np.mean(language_embeddings,axis=0),axis=1))
 	return visual_variance,language_variance
 
+def get_distinctness(struct):
+	words=struct["words"]
+	visual_centers=dict()
+	language_centers=dict()
+	for word in words:
+		visual_embeddings=np.array(struct["embeds"][word]["visual"])
+		visual_centers[word]=np.mean(visual_embeddings,axis=0)
+		language_embeddings=np.array(struct["embeds"][word]["language"])
+		language_centers[word]=np.mean(language_embeddings,axis=0)
+	visual_distinctness=dict()
+	language_distinctness=dict()
+	for word in words:
+		visual_distances=[np.linalg.norm(visual_centers[word]-visual_centers[temp]) for temp in words]
+		visual_distinctness[word]=np.sum(visual_distances)/(len(visual_distances)-1)
+		language_distances=[np.linalg.norm(language_centers[word]-language_centers[temp]) for temp in words]
+		language_distinctness[word]=np.sum(language_distances)/(len(language_distances)-1)
+	return visual_distinctness,language_distinctness
+
 def get_distinctness_from_nearest_5(struct):
 	words=struct["words"]
 	visual_centers=dict()
@@ -105,7 +123,7 @@ def aggregate_embeddings_visual_and_language(input_struct,n_sample_per_visual,n_
 		visual_temp=np.mean(np.array(random.sample(input_struct['embeds'][word]['visual'],n_sample_v)),axis=0)
 		n_sample_l = min(len(input_struct['embeds'][word]['language']), n_sample_per_language)
 		language_temp=np.mean(np.array(random.sample(input_struct['embeds'][word]['language'],n_sample_l)),axis=0)
-		embed_dict[word]=dict(visual=visual_temp,language=language_temp)
+		embed_dict[word]=dict(visual=np.squeeze(visual_temp),language=np.squeeze(language_temp))
 	return dict(embeds=embed_dict,words=words)
 
 def get_aggregated_embeddings_2D(data, n_sample_per_visual, n_sample_per_language, aggregation_mode):
@@ -265,7 +283,7 @@ def call_pretrained_BERT(concepts,packed_samples,cuda=False,mask=False):
 			# take the summation of the outputs of the last four layers as the contextualized embedding
 			token_vecs_sum = []
 			for token in token_embeddings:
-				sum_vec = token[-1:]
+				sum_vec = torch.squeeze(token[-1:])
 				#sum_vec = torch.sum(token[-4:], dim=0)
 				if cuda:
 					sum_vec=sum_vec.data.cpu().numpy()
@@ -286,7 +304,7 @@ def call_pretrained_BERT(concepts,packed_samples,cuda=False,mask=False):
 
 	return language_embeddings_dict
 
-def sample_sentence_from_corpus(concepts,n_sample,pos=None,corpus_name='wiki_en',window_size=5):
+def sample_sentence_from_corpus(concepts,n_sample,pos=None,corpus_name='wiki_en',window_size=15):
 	# import linecache
 	# please modify the below path to your corpus
 	if corpus_name=="wiki_en":

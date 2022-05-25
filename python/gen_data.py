@@ -132,8 +132,8 @@ def generate_embeddings(dataset,l_encoder,v_encoder,concept_file,n_sample,embeds
 	return_struct=dict(embeds=embed_dict,words=concepts)
 	if dump:
 		pickle.dump(return_struct,
-					open(f'../data/dumped_embeddings/{name}.pkl', 'wb'))
-		print(f"Embeddings dumped to data/dumped_embeddings/{name}.pkl")
+					open(f'../data/dumped_embeddings_replication/{name}.pkl', 'wb'))
+		print(f"Embeddings dumped to data/dumped_embeddings_replication/{name}.pkl")
 	return return_struct
 
 if __name__ == '__main__':

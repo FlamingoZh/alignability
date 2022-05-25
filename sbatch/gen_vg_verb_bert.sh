@@ -27,7 +27,7 @@ hostname
 echo "job starting"
 conda activate alignment
 
-python ../python/gen_data.py vg_verb vg_verb_concept_least20.txt bert swav \
+python ../python/gen_data.py vg_verb_least20_ll vg_verb_concept_least20.txt bert swav \
   --n_sample 20 \
   --cuda
 
