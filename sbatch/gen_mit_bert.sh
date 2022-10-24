@@ -27,7 +27,7 @@ hostname
 echo "job starting"
 conda activate alignment
 
-python ../python/gen_data.py mit mit_concept.txt bert swav \
+python ../python/gen_data.py mit_ll mit_concept.txt bert swav \
   --n_sample 20 \
   --cuda
 

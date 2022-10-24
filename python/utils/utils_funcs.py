@@ -41,6 +41,24 @@ def get_variance(struct):
 		language_variance[word]=np.mean(np.linalg.norm(language_embeddings-np.mean(language_embeddings,axis=0),axis=1))
 	return visual_variance,language_variance
 
+# def get_distinctness(struct):
+# 	words=struct["words"]
+# 	visual_centers=dict()
+# 	language_centers=dict()
+# 	for word in words:
+# 		visual_embeddings=np.array(struct["embeds"][word]["visual"])
+# 		visual_centers[word]=np.mean(visual_embeddings,axis=0)
+# 		language_embeddings=np.array(struct["embeds"][word]["language"])
+# 		language_centers[word]=np.mean(language_embeddings,axis=0)
+# 	visual_distinctness=dict()
+# 	language_distinctness=dict()
+# 	for word in words:
+# 		visual_distances=[np.linalg.norm(visual_centers[word]-visual_centers[temp]) for temp in words]
+# 		visual_distinctness[word]=np.sum(visual_distances)/(len(visual_distances)-1)
+# 		language_distances=[np.linalg.norm(language_centers[word]-language_centers[temp]) for temp in words]
+# 		language_distinctness[word]=np.sum(language_distances)/(len(language_distances)-1)
+# 	return visual_distinctness,language_distinctness
+
 def get_distinctness(struct):
 	words=struct["words"]
 	visual_centers=dict()
@@ -53,10 +71,18 @@ def get_distinctness(struct):
 	visual_distinctness=dict()
 	language_distinctness=dict()
 	for word in words:
-		visual_distances=[np.linalg.norm(visual_centers[word]-visual_centers[temp]) for temp in words]
-		visual_distinctness[word]=np.sum(visual_distances)/(len(visual_distances)-1)
-		language_distances=[np.linalg.norm(language_centers[word]-language_centers[temp]) for temp in words]
-		language_distinctness[word]=np.sum(language_distances)/(len(language_distances)-1)
+		# visual_distances=[np.linalg.norm(visual_centers[word]-visual_centers[temp]) for temp in words]
+		visual_distances=list()
+		for embed in struct["embeds"][word]["visual"]:
+			for temp in words:
+				visual_distances.append(np.linalg.norm(embed-visual_centers[temp]))
+		visual_distinctness[word]=np.sum(visual_distances)/len(visual_distances)
+		#language_distances=[np.linalg.norm(language_centers[word]-language_centers[temp]) for temp in words]
+		language_distances=list()
+		for embed in struct["embeds"][word]["language"]:
+			for temp in words:
+				language_distances.append(np.linalg.norm(embed-language_centers[temp]))
+		language_distinctness[word]=np.sum(language_distances)/len(language_distances)
 	return visual_distinctness,language_distinctness
 
 def get_distinctness_from_nearest_5(struct):

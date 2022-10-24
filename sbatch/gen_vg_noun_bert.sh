@@ -1,7 +1,7 @@
 #!/bin/bash -l
 
 # Job name
-#SBATCH --job-name=gen_vg_noun_bert
+#SBATCH --job-name=gen_vg_noun_bert_2nd
 # Mail events (NONE, BEGIN, END, FAIL, ALL)
 ###############################################
 ########## example #SBATCH --mail-type=END,FAIL
@@ -21,13 +21,13 @@
 #SBATCH --time 00-100:00:00
 
 # Standard output and error log
-#SBATCH --output=/home/yuchenz2/f_verb_alignment/sbatch/log/gen_vg_noun_bert.out
+#SBATCH --output=/home/yuchenz2/f_verb_alignment/sbatch/log/gen_vg_noun_bert_2nd.out
 
 hostname
 echo "job starting"
 conda activate alignment
 
-python ../python/gen_data.py vg_noun_least20_ll vg_noun_concept_least20.txt bert swav \
+python ../python/gen_data.py vg_noun_least20_ll_2nd vg_noun_concept_least20.txt bert swav \
   --n_sample 20 \
   --cuda
 

@@ -43,7 +43,7 @@ def simulate_exemplar_aggregation_2D(datasetname, data, aggregation_mode, n_l_ex
 
 if __name__ == '__main__':
 
-    print("aggregate_exemplars.py")
+    print("aggregate_exemplars_2D.py")
 
     parser = argparse.ArgumentParser()
     parser.add_argument("datasetname", help="name of the dataset")
